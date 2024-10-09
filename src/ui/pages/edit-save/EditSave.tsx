@@ -1,83 +1,80 @@
-import { Pane, Tablist, Tab, IconButton, Button, ArrowLeftIcon, Text, CogIcon, Popover, Menu, ImportIcon, ExportIcon, TextInputField, Table, TextInput, Switch } from "evergreen-ui"
-import { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
-import { useNavigate } from "react-router-dom"
-import { resources, sanctuary, talents } from "../../util/names"
-
-export const EditSave = () => {
-  const navigate = useNavigate()
-  const { register, handleSubmit, reset, watch, setValue, getValues } = useForm();
-  const [data, setData] = useState<any>({})
-  const [selectedTab, setSelectedTab] = useState<'player' | 'inventory' | 'talents'>('player')
-
+import { memo } from "react";
+import { Pane, Tablist, Tab, IconButton, Button, ArrowLeftIcon, Text, CogIcon, Popover, Menu, ImportIcon, ExportIcon, TextInputField, Table, TextInput, Switch } from "evergreen-ui";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { resources, sanctuary, talents } from "../../util/names";
+export const EditSave = memo(() => {
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    getValues
+  } = useForm();
+  const [data, setData] = useState<any>({});
+  const [selectedTab, setSelectedTab] = useState<'player' | 'inventory' | 'talents'>('player');
   useEffect(() => {
     window.HLSE.getData().then(data => {
-      setData(data)
-      reset(data.player)
-    })
-  }, [])
-
+      setData(data);
+      reset(data.player);
+    });
+  }, []);
   const handleBackClick = () => {
-    navigate('/', { replace: true })
-  }
-
+    navigate('/', {
+      replace: true
+    });
+  };
   const handleImportDatabaseClick = async () => {
-    await window.HLSE.importDatabase()
+    await window.HLSE.importDatabase();
     window.HLSE.getData().then(data => {
-      setData(data)
-      reset(data.player)
-    })
-  }
-
+      setData(data);
+      reset(data.player);
+    });
+  };
   const handleExportDatabaseClick = async () => {
-    await window.HLSE.exportDatabase()
-  }
-
+    await window.HLSE.exportDatabase();
+  };
   const handleUnlockAllClick = async () => {
     talents.forEach(item => {
-      setValue(`talents.${item.key}`, true)
-    })
-  }
-
+      setValue(`talents.${item.key}`, true);
+    });
+  };
   const handleRespecClick = async () => {
-    let allocatedPoints = 0
-
+    let allocatedPoints = 0;
     talents.forEach(item => {
-      allocatedPoints += getValues(`talents.${item.key}`) ? 1 : 0
-      setValue(`talents.${item.key}`, false)
-    })
-
-    setValue('misc.PerkPoints', parseInt(getValues('misc.PerkPoints'), 10) + allocatedPoints)
-  }
-
+      allocatedPoints += getValues(`talents.${item.key}`) ? 1 : 0;
+      setValue(`talents.${item.key}`, false);
+    });
+    setValue('misc.PerkPoints', parseInt(getValues('misc.PerkPoints'), 10) + allocatedPoints);
+  };
   const onFormSubmit = async (values: unknown) => {
-    console.log(values)
-    const success = await window.HLSE.setData(values)
-
+    console.log(values);
+    const success = await window.HLSE.setData(values);
     if (success) {
-      await window.HLSE.writeSave()
+      await window.HLSE.writeSave();
     }
-  }
-
-  return (
-    <Pane height='100%' display='flex' flexDirection='column'>
+  };
+  return <Pane height='100%' display='flex' flexDirection='column'>
       <Pane height={48} display='flex' alignItems='center' padding={8} background='#222'>
         <IconButton icon={<ArrowLeftIcon />} appearance='minimal' onClick={handleBackClick} />
         <Text flex={1} paddingLeft={8} paddingRight={8} color='#fff'>Editing {data.saveName}</Text>
-        <Popover content={({ close }) => (
-          <Menu>
+        <Popover content={({
+        close
+      }) => <Menu>
             <Menu.Group>
               <Menu.Item icon={<ImportIcon />} onClick={() => {
-                close()
-                handleImportDatabaseClick()
-              }}>Import Database</Menu.Item>
+            close();
+            handleImportDatabaseClick();
+          }}>Import Database</Menu.Item>
               <Menu.Item icon={<ExportIcon />} onClick={() => {
-                close()
-                handleExportDatabaseClick()
-              }}>Export Database</Menu.Item>
+            close();
+            handleExportDatabaseClick();
+          }}>Export Database</Menu.Item>
             </Menu.Group>
-          </Menu>
-        )}>
+          </Menu>}>
           <IconButton icon={<CogIcon />} appearance='minimal' />
         </Popover>
       </Pane>
@@ -116,28 +113,24 @@ export const EditSave = () => {
                   <Pane flex={1} overflowY='auto'>
                     <Table>
                       <Table.Body>
-                        {resources.map((item: typeof resources[number]) => (
-                          <Table.Row key={item.key} height={48}>
+                        {resources.map((item: typeof resources[number]) => <Table.Row key={item.key} height={48}>
                             <Table.TextCell>{item.value}</Table.TextCell>
                             <Table.TextCell flexBasis={100} flexShrink={0} flexGrow={0}>
                                <TextInput type='number' min={0} max={9999} width={72} {...register(`inventory.resources.${item.key}`)} />
                             </Table.TextCell>
-                          </Table.Row>
-                        ))}
+                          </Table.Row>)}
                       </Table.Body>
                     </Table>
                   </Pane>
                   <Pane flex={1} overflowY='auto'>
                     <Table>
                       <Table.Body>
-                        {sanctuary.map((item: typeof sanctuary[number]) => (
-                          <Table.Row key={item.key} height={48}>
+                        {sanctuary.map((item: typeof sanctuary[number]) => <Table.Row key={item.key} height={48}>
                             <Table.TextCell>{item.value}</Table.TextCell>
                             <Table.TextCell flexBasis={100} flexShrink={0} flexGrow={0}>
                                <TextInput type='number' min={0} max={9999} width={72} {...register(`inventory.sanctuary.${item.key}`)} />
                             </Table.TextCell>
-                          </Table.Row>
-                        ))}
+                          </Table.Row>)}
                       </Table.Body>
                     </Table>
                   </Pane>
@@ -164,17 +157,12 @@ export const EditSave = () => {
                   <Pane flex={1} overflowY='auto'>
                     <Table>
                       <Table.Body>
-                        {talents.map((item: typeof talents[number]) => (
-                          <Table.Row key={item.key} height={48}>
+                        {talents.map((item: typeof talents[number]) => <Table.Row key={item.key} height={48}>
                             <Table.TextCell>{item.value}</Table.TextCell>
                             <Table.TextCell paddingLeft={32} flexBasis={100} flexShrink={0} flexGrow={0}>
-                              <Switch
-                              {...register(`talents.${item.key}`)}
-                              checked={watch(`talents.${item.key}`)}
-                              onChange={e => setValue(`talents.${item.key}`, e.target.checked)} />
+                              <Switch {...register(`talents.${item.key}`)} checked={watch(`talents.${item.key}`)} onChange={e => setValue(`talents.${item.key}`, e.target.checked)} />
                             </Table.TextCell>
-                          </Table.Row>
-                        ))}
+                          </Table.Row>)}
                       </Table.Body>
                     </Table>
                   </Pane>
@@ -186,6 +174,5 @@ export const EditSave = () => {
       <Pane height={48} display='flex' alignItems='center' justifyContent='flex-end' padding={8} background='#222'>
         <Button appearance='primary' intent='success' onClick={handleSubmit(onFormSubmit)}>Save</Button>
       </Pane>
-    </Pane>
-  )
-}
+    </Pane>;
+});
